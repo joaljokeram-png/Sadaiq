@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <title>شات صدى العراق الملكي 👑</title>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <style>
+        /* ضع هنا تنسيقات الـ CSS التي صممناها سابقاً */
+        :root { --gold: #d4af37; --bg: #121212; }
+        body { background: var(--bg); color: white; font-family: sans-serif; direction: rtl; }
+        #chat-container { display: flex; height: 90vh; }
+        #messages { flex: 1; overflow-y: auto; padding: 20px; border: 1px solid var(--gold); }
+        .msg { margin-bottom: 10px; display: flex; align-items: center; gap: 10px; }
+        .msg img { width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--gold); }
+    </style>
+</head>
+<body>
+    <h2 style="text-align:center; color:var(--gold);">صدى العراق الملكي 👑</h2>
+    <div id="chat-container">
+        <div id="messages"></div>
+    </div>
+    <div style="padding:10px; display:flex; gap:10px;">
+        <input type="text" id="msgInp" style="flex:1; padding:10px;" placeholder="اكتب رسالتك...">
+        <button onclick="sendMsg()" style="background:var(--gold); border:none; padding:10px 20px; cursor:pointer;">إرسال</button>
+    </div>
+
+    <script>
+        // ⚠️ استبدل الرابط أدناه برابط الـ Live الذي سيعطيك إياه Render
+        const socket = io('https://sadaiq.onrender.com');
+
+        let user = "سكرات الموت"; // يمكن تغييره ليأخذ من نظام الدخول
+        let myRank = "صاحب الموقع";
+        let myAvatar = "https://cdn-icons-png.flaticon.com/512/149/149071.png";
+
+        socket.emit('join', { user, rank: myRank, avatar: myAvatar, room: "العامة" });
+
+        function sendMsg() {
+            const text = document.getElementById('msgInp').value;
+            if(!text) return;
+            socket.emit('message', { user, text, rank: myRank, avatar: myAvatar, room: "العامة", style: {textColor: "#fff"} });
+            document.getElementById('msgInp').value = "";
+        }
+
+        socket.on('new_message', (data) => {
+            const msgBox = document.getElementById('messages');
+            msgBox.innerHTML += `
+                <div class="msg">
+                    <img src="${data.avatar}">
+                    <div>
+                        <b style="color:var(--gold)">${data.user}:</b>
+                        <span>${data.text}</span>
+                        <small style="color:gray; font-size:10px;">${data.time}</small>
+                    </div>
+                </div>`;
+            msgBox.scrollTop = msgBox.scrollHeight;
+        });
+    </script>
+</body>
+</html>
